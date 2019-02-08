@@ -105,7 +105,7 @@ uploadsController.actuallyUpload = async (req, res, userid, albumid) => {
 				const fileHash = hash.digest('hex');
 				const dbFile = await db
 					.table('files')
-					.where(() => {
+					.where(function() {
 						if (userid === undefined) this.whereNull('userid');
 						else this.where('userid', userid.id);
 					})
@@ -216,7 +216,7 @@ uploadsController.delete = async (req, res) => {
 	const file = await db
 		.table('files')
 		.where('id', id)
-		.where(() => {
+		.where(function() {
 			if (user.username !== 'root') {
 				this.where('userid', user.id);
 			}
@@ -282,11 +282,11 @@ uploadsController.list = async (req, res) => {
 
 	const files = await db
 		.table('files')
-		.where(() => {
+		.where(function() {
 			if (req.params.id === undefined) this.where('id', '<>', '');
 			else this.where('albumid', req.params.id);
 		})
-		.where(() => {
+		.where(function() {
 			if (user.username !== 'root') this.where('userid', user.id);
 		})
 		.orderBy('id', 'DESC')
