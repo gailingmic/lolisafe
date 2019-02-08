@@ -139,7 +139,7 @@ upload.prepareDropzone = () => {
 		maxFiles: 1000,
 		autoProcessQueue: true,
 		headers: { token: upload.token },
-		init: () => {
+		init: function() {
 			upload.myDropzone = this;
 			this.on('addedfile', file => {
 				document.getElementById('uploads').style.display = 'block';
