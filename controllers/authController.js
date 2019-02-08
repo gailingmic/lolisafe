@@ -6,19 +6,24 @@ const utils = require('./utilsController.js');
 
 let authController = {};
 
-authController.verify = async (req, res, next) => {
+authController.verify = async (req, res) => {
 	const username = req.body.username;
 	const password = req.body.password;
 
 	if (username === undefined) return res.json({ success: false, description: 'No username provided' });
 	if (password === undefined) return res.json({ success: false, description: 'No password provided' });
 
-	const user = await db.table('users').where('username', username).first();
-	if (!user) return res.json({ success: false, description: 'Username doesn\'t exist' });
-	if (user.enabled === false || user.enabled === 0) return res.json({
-		success: false,
-		description: 'This account has been disabled'
-	});
+	const user = await db
+		.table('users')
+		.where('username', username)
+		.first();
+	if (!user) return res.json({ success: false, description: "Username doesn't exist" });
+	if (user.enabled === false || user.enabled === 0) {
+		return res.json({
+			success: false,
+			description: 'This account has been disabled'
+		});
+	}
 
 	bcrypt.compare(password, user.password, (err, result) => {
 		if (err) {
@@ -30,7 +35,7 @@ authController.verify = async (req, res, next) => {
 	});
 };
 
-authController.register = async (req, res, next) => {
+authController.register = async (req, res) => {
 	if (config.enableUserAccounts === false) {
 		return res.json({ success: false, description: 'Register is disabled at the moment' });
 	}
@@ -48,7 +53,10 @@ authController.register = async (req, res, next) => {
 		return res.json({ success: false, description: 'Password must have 6-64 characters' });
 	}
 
-	const user = await db.table('users').where('username', username).first();
+	const user = await db
+		.table('users')
+		.where('username', username)
+		.first();
 	if (user) return res.json({ success: false, description: 'Username already exists' });
 
 	bcrypt.hash(password, 10, async (err, hash) => {
@@ -67,7 +75,7 @@ authController.register = async (req, res, next) => {
 	});
 };
 
-authController.changePassword = async (req, res, next) => {
+authController.changePassword = async (req, res) => {
 	const user = await utils.authorize(req, res);
 
 	let password = req.body.password;
@@ -83,7 +91,10 @@ authController.changePassword = async (req, res, next) => {
 			return res.json({ success: false, description: 'Error generating password hash (╯°□°）╯︵ ┻━┻' });
 		}
 
-		await db.table('users').where('id', user.id).update({ password: hash });
+		await db
+			.table('users')
+			.where('id', user.id)
+			.update({ password: hash });
 		return res.json({ success: true });
 	});
 };

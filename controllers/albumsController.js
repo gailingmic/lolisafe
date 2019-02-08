@@ -7,7 +7,7 @@ const fs = require('fs');
 const Zip = require('jszip');
 const albumsController = {};
 
-albumsController.list = async (req, res, next) => {
+albumsController.list = async (req, res) => {
 	const user = await utils.authorize(req, res);
 
 	const fields = ['id', 'name'];
@@ -16,7 +16,10 @@ albumsController.list = async (req, res, next) => {
 		fields.push('identifier');
 	}
 
-	const albums = await db.table('albums').select(fields).where({ enabled: 1, userid: user.id });
+	const albums = await db
+		.table('albums')
+		.select(fields)
+		.where({ enabled: 1, userid: user.id });
 	if (req.params.sidebar !== undefined) {
 		return res.json({ success: true, albums });
 	}
@@ -30,7 +33,10 @@ albumsController.list = async (req, res, next) => {
 		ids.push(album.id);
 	}
 
-	const files = await db.table('files').whereIn('albumid', ids).select('albumid');
+	const files = await db
+		.table('files')
+		.whereIn('albumid', ids)
+		.select('albumid');
 	const albumsCount = {};
 
 	for (let id of ids) albumsCount[id] = 0;
@@ -40,7 +46,7 @@ albumsController.list = async (req, res, next) => {
 	return res.json({ success: true, albums });
 };
 
-albumsController.create = async (req, res, next) => {
+albumsController.create = async (req, res) => {
 	const user = await utils.authorize(req, res);
 
 	const name = req.body.name;
@@ -48,14 +54,17 @@ albumsController.create = async (req, res, next) => {
 		return res.json({ success: false, description: 'No album name specified' });
 	}
 
-	const album = await db.table('albums').where({
-		name: name,
-		enabled: 1,
-		userid: user.id
-	}).first();
+	const album = await db
+		.table('albums')
+		.where({
+			name: name,
+			enabled: 1,
+			userid: user.id
+		})
+		.first();
 
 	if (album) {
-		return res.json({ success: false, description: 'There\'s already an album with that name' });
+		return res.json({ success: false, description: "There's already an album with that name" });
 	}
 
 	await db.table('albums').insert({
@@ -69,7 +78,7 @@ albumsController.create = async (req, res, next) => {
 	return res.json({ success: true });
 };
 
-albumsController.delete = async (req, res, next) => {
+albumsController.delete = async (req, res) => {
 	const user = await utils.authorize(req, res);
 
 	const id = req.body.id;
@@ -77,11 +86,14 @@ albumsController.delete = async (req, res, next) => {
 		return res.json({ success: false, description: 'No album specified' });
 	}
 
-	await db.table('albums').where({ id: id, userid: user.id }).update({ enabled: 0 });
+	await db
+		.table('albums')
+		.where({ id: id, userid: user.id })
+		.update({ enabled: 0 });
 	return res.json({ success: true });
 };
 
-albumsController.rename = async (req, res, next) => {
+albumsController.rename = async (req, res) => {
 	const user = await utils.authorize(req, res);
 
 	const id = req.body.id;
@@ -94,24 +106,37 @@ albumsController.rename = async (req, res, next) => {
 		return res.json({ success: false, description: 'No name specified' });
 	}
 
-	const album = await db.table('albums').where({ name: name, userid: user.id }).first();
+	const album = await db
+		.table('albums')
+		.where({ name: name, userid: user.id })
+		.first();
 	if (album) {
 		return res.json({ success: false, description: 'Name already in use' });
 	}
 
-	await db.table('albums').where({ id: id, userid: user.id }).update({ name: name });
+	await db
+		.table('albums')
+		.where({ id: id, userid: user.id })
+		.update({ name: name });
 	return res.json({ success: true });
 };
 
-albumsController.get = async (req, res, next) => {
+albumsController.get = async (req, res) => {
 	const identifier = req.params.identifier;
 	if (identifier === undefined) return res.status(401).json({ success: false, description: 'No identifier provided' });
 
-	const album = await db.table('albums').where({ identifier, enabled: 1 }).first();
+	const album = await db
+		.table('albums')
+		.where({ identifier, enabled: 1 })
+		.first();
 	if (!album) return res.json({ success: false, description: 'Album not found' });
 
 	const title = album.name;
-	const files = await db.table('files').select('name').where('albumid', album.id).orderBy('id', 'DESC');
+	const files = await db
+		.table('files')
+		.select('name')
+		.where('albumid', album.id)
+		.orderBy('id', 'DESC');
 
 	for (let file of files) {
 		file.file = `${config.domain}/${file.name}`;
@@ -130,13 +155,15 @@ albumsController.get = async (req, res, next) => {
 	});
 };
 
-
-albumsController.generateZip = async (req, res, next) => {
+albumsController.generateZip = async (req, res) => {
 	const identifier = req.params.identifier;
 	if (identifier === undefined) return res.status(401).json({ success: false, description: 'No identifier provided' });
 	if (!config.uploads.generateZips) return res.status(401).json({ success: false, description: 'Zip generation disabled' });
 
-	const album = await db.table('albums').where({ identifier, enabled: 1 }).first();
+	const album = await db
+		.table('albums')
+		.where({ identifier, enabled: 1 })
+		.first();
 	if (!album) return res.json({ success: false, description: 'Album not found' });
 
 	if (album.zipGeneratedAt > album.editedAt) {
@@ -145,7 +172,10 @@ albumsController.generateZip = async (req, res, next) => {
 		return res.download(filePath, fileName);
 	} else {
 		console.log(`Generating zip for album identifier: ${identifier}`);
-		const files = await db.table('files').select('name').where('albumid', album.id);
+		const files = await db
+			.table('files')
+			.select('name')
+			.where('albumid', album.id);
 		if (files.length === 0) return res.json({ success: false, description: 'There are no files in the album' });
 
 		const zipPath = path.join(__dirname, '..', config.uploads.folder, 'zips', `${album.identifier}.zip`);
@@ -153,7 +183,7 @@ albumsController.generateZip = async (req, res, next) => {
 
 		for (let file of files) {
 			try {
-				const exists = fs.statSync(path.join(__dirname, '..', config.uploads.folder, file.name));
+				// Const exists = fs.statSync(path.join(__dirname, '..', config.uploads.folder, file.name));
 				archive.file(file.name, fs.readFileSync(path.join(__dirname, '..', config.uploads.folder, file.name)));
 			} catch (err) {
 				console.log(err);
@@ -165,7 +195,8 @@ albumsController.generateZip = async (req, res, next) => {
 			.pipe(fs.createWriteStream(zipPath))
 			.on('finish', async () => {
 				console.log(`Generated zip for album identifier: ${identifier}`);
-				await db.table('albums')
+				await db
+					.table('albums')
 					.where('id', album.id)
 					.update({ zipGeneratedAt: Math.floor(Date.now() / 1000) });
 

@@ -4,14 +4,21 @@ const db = require('knex')(config.database);
 const path = require('path');
 const utils = require('../controllers/utilsController.js');
 
-routes.get('/a/:identifier', async (req, res, next) => {
+routes.get('/a/:identifier', async (req, res) => {
 	let identifier = req.params.identifier;
 	if (identifier === undefined) return res.status(401).json({ success: false, description: 'No identifier provided' });
 
-	const album = await db.table('albums').where({ identifier, enabled: 1 }).first();
+	const album = await db
+		.table('albums')
+		.where({ identifier, enabled: 1 })
+		.first();
 	if (!album) return res.status(404).sendFile('404.html', { root: './pages/error/' });
 
-	const files = await db.table('files').select('name').where('albumid', album.id).orderBy('id', 'DESC');
+	const files = await db
+		.table('files')
+		.select('name')
+		.where('albumid', album.id)
+		.orderBy('id', 'DESC');
 	let thumb = '';
 	const basedomain = config.domain;
 
@@ -37,7 +44,6 @@ routes.get('/a/:identifier', async (req, res, next) => {
 			file.thumb = `<h1 class="title">.${ext}</h1>`;
 		}
 	}
-
 
 	let enableDownload = false;
 	if (config.uploads.generateZips) enableDownload = true;

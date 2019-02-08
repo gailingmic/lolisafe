@@ -1,16 +1,16 @@
 module.exports = {
-  /*
+	/*
 		If set to true the user will need to specify the auto-generated token
 		on each API call, meaning random strangers wont be able to use the service
 		unless they have the token lolisafe provides you with.
 		If it's set to false, then upload will be public for anyone to use.
 	*/
-  private: true,
+	private: true,
 
-  // If true, users will be able to create accounts and access their uploaded files
-  enableUserAccounts: true,
+	// If true, users will be able to create accounts and access their uploaded files
+	enableUserAccounts: true,
 
-  /*
+	/*
 		Here you can decide if you want lolisafe to serve the files or if you prefer doing so via nginx.
 		The main difference between the two is the ease of use and the chance of analytics in the future.
 		If you set it to `true`, the uploaded files will be located after the host like:
@@ -23,86 +23,86 @@ module.exports = {
 		Both cases require you to type the domain where the files will be served on the `domain` key below.
 		Which one you use is ultimately up to you.
 	*/
-  serveFilesWithNode: false,
-  domain: "https://lolisafe.moe",
+	serveFilesWithNode: false,
+	domain: 'https://lolisafe.moe',
 
-  // Port on which to run the server
-  port: 9999,
+	// Port on which to run the server
+	port: 9999,
 
-  // Wether to listen on a TCP Port or Unix Socket
-  socket: {
-    listen: true,
-    path: "/var/run/lolisafe.socket",
-    permission: 0777
-  },
+	// Wether to listen on a TCP Port or Unix Socket
+	socket: {
+		listen: true,
+		path: '/var/run/lolisafe.socket',
+		permission: 0777
+	},
 
-  // Pages to process for the frontend
-  pages: ["home", "auth", "dashboard", "faq"],
+	// Pages to process for the frontend
+	pages: ['home', 'auth', 'dashboard', 'faq'],
 
-  // Add file extensions here which should be blocked
-  blockedExtensions: [
-    ".jar",
-    ".exe",
-    ".exec",
-    ".msi",
-    ".com",
-    ".bat",
-    ".cmd",
-    ".nt",
-    ".scr",
-    ".ps1",
-    ".psm1",
-    ".sh",
-    ".bash",
-    ".bsh",
-    ".csh",
-    ".bash_profile",
-    ".bashrc",
-    ".profile"
-  ],
+	// Add file extensions here which should be blocked
+	blockedExtensions: [
+		'.jar',
+		'.exe',
+		'.exec',
+		'.msi',
+		'.com',
+		'.bat',
+		'.cmd',
+		'.nt',
+		'.scr',
+		'.ps1',
+		'.psm1',
+		'.sh',
+		'.bash',
+		'.bsh',
+		'.csh',
+		'.bash_profile',
+		'.bashrc',
+		'.profile'
+	],
 
-  // Uploads config
-  uploads: {
-    // Folder where images should be stored
-    folder: "uploads",
+	// Uploads config
+	uploads: {
+		// Folder where images should be stored
+		folder: 'uploads',
 
-    /*
+		/*
 			Max file size allowed. Needs to be in MB
 			Note: When maxSize is greater than 1 MiB, you must set the client_max_body_size to the same as maxSize.
 		*/
-    maxSize: "512MB",
+		maxSize: '512MB',
 
-    // The length of the random generated name for the uploaded files
-    fileLength: 32,
+		// The length of the random generated name for the uploaded files
+		fileLength: 32,
 
-    /*
+		/*
 			This option will limit how many times it will try to generate random names
 			for uploaded files. If this value is higher than 1, it will help in cases
 			where files with the same name already exists (higher chance with shorter file name length).
 		*/
-    maxTries: 1,
+		maxTries: 1,
 
-    /*
+		/*
 			NOTE: Thumbnails are only for the admin panel and they require you
 			to install a separate binary called ffmpeg (https://ffmpeg.org/) for video files
 		*/
-    generateThumbnails: false,
+		generateThumbnails: false,
 
-    /*
+		/*
 			Allows users to download a .zip file of all files in an album.
 			The file is generated when the user clicks the download button in the view
 			and is re-used if the album has not changed between download requests
 		*/
-    generateZips: true
-  },
+		generateZips: true
+	},
 
-  // Folder where to store logs
-  logsFolder: "logs",
+	// Folder where to store logs
+	logsFolder: 'logs',
 
-  // The following values shouldn't be touched
-  database: {
-    client: "sqlite3",
-    connection: { filename: "./database/db" },
-    useNullAsDefault: true
-  }
+	// The following values shouldn't be touched
+	database: {
+		client: 'sqlite3',
+		connection: { filename: './database/db' },
+		useNullAsDefault: true
+	}
 };
