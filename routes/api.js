@@ -30,7 +30,7 @@ routes.get('/albums/:sidebar', albumsController.list);
 routes.post('/albums', albumsController.create);
 routes.post('/albums/delete', albumsController.delete);
 routes.post('/albums/rename', albumsController.rename);
-routes.get('/albums/test', albumsController.test);
+// Routes.get('/albums/test', albumsController.test);
 routes.get('/tokens', tokenController.list);
 routes.post('/tokens/verify', tokenController.verify);
 routes.post('/tokens/change', tokenController.change);
